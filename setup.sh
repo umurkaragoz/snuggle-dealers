@@ -158,7 +158,7 @@ if [ "$database" = true ]; then
 
     echo -e "\n${FBROWN}Creating the database...${RS}\n"
 
-    mysql -v --user="$DB_USERNAME" --password="$DB_PASSWORD" --execute="CREATE DATABASE IF NOT EXISTS $DB_DATABASE"
+    mysql -v --user="$DB_USERNAME" --password="$DB_PASSWORD" --execute="CREATE DATABASE IF NOT EXISTS \`$DB_DATABASE\`"
 
     echo "done."
 fi

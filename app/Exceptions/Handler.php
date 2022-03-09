@@ -15,7 +15,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         //
     ];
-
+    
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
@@ -26,7 +26,7 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-
+    
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -34,8 +34,18 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function(Throwable $e) {
+            // We are building an API, therefore we want all exceptions in JSON format.
+            
+            $httpStatusCode = 400;
+            
+            if ($this->isHttpException($e)) {
+                // If we are processing a Http exception, we can try to extract a more useful status code than mere `400`.
+                $httpStatusCode = $e->getStatusCode();
+            }
+            
+            // Return a JSON response.
+            return response()->json($e->getMessage(), $httpStatusCode);
         });
     }
 }
