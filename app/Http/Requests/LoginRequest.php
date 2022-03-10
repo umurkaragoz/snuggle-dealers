@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\DataTransferObjects\LoginDto;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use JetBrains\PhpStorm\ArrayShape;
 
 class LoginRequest extends FormRequest
 {
@@ -13,7 +15,8 @@ class LoginRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    #[ArrayShape(['email' => "string[]", 'password' => "string"])]
+    public function rules(): array
     {
         return [
             'email'    => ['required', 'email'],
@@ -28,5 +31,10 @@ class LoginRequest extends FormRequest
             'message' => 'Validation errors',
             'data'    => $validator->errors(),
         ]));
+    }
+    
+    public function getDto(): LoginDto
+    {
+        return new LoginDto();
     }
 }

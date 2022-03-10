@@ -9,15 +9,16 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
+        "firebase/php-jwt": "^6.0",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "lcobucci/jwt": "^4.1",
         "vyuldashev/laravel-openapi": "^1.5"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.12",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
@@ -40,8 +41,7 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi",
-            "@php artisan openapi:generate"
+            "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
@@ -53,6 +53,11 @@
             "@php artisan key:generate --ansi"
         ],
         "migrate": "@php artisan migrate:fresh --seed",
+        "generate-ide-helpers": [
+            "@php artisan ide-helper:generate -WHn",
+            "@php artisan ide-helper:meta -n",
+            "@php artisan ide-helper:model -Mrpn"
+        ],
         "setup": [
             "chmod 775 ./setup.sh",
             "./setup.sh -cld"

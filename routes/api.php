@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
+// @formatter:off
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,5 +15,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::pattern('uuid',  '[a-zA-Z0-9\-]+');
 
-Route::post('/login', [AdminController::class, 'login']);
+Route::post('/admin/login', [AdminController::class, 'login']);
+
+Route::middleware('auth')->group(function() {
+    
+    Route::prefix('admin')->group(function() {
+        
+        Route::get('/create',   [AdminController::class, 'create']);
+        Route::get('/logout',   [AdminController::class, 'logout']);
+        
+        Route::get('/user-listing',         [AdminController::class, 'userListing']);
+        Route::get('/user-edit/{uuid}',     [AdminController::class, 'userEdit']);
+        Route::get('/user-delete/{uuid}',   [AdminController::class, 'userDelete']);
+    
+    });
+    
+});

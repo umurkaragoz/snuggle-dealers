@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\UnauthorizedException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,18 +35,24 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        // We are building an API, therefore we want all exceptions rendered in JSON format.
         $this->renderable(function(Throwable $e) {
-            // We are building an API, therefore we want all exceptions in JSON format.
             
             $httpStatusCode = 400;
             
-            if ($this->isHttpException($e)) {
-                // If we are processing a Http exception, we can try to extract a more useful status code than mere `400`.
-                $httpStatusCode = $e->getStatusCode();
+            // If we are processing an Http exception, we can try to extract a more useful status code than mere `400`.
+            if ($e instanceof UnauthorizedException) {
+                $httpStatusCode = $e->getCode();
             }
             
             // Return a JSON response.
-            return response()->json($e->getMessage(), $httpStatusCode);
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data'    => [
+                    'type'  => get_class($e),
+                    'trace' => $e->getTrace(),
+                ],
+            ], $httpStatusCode);
         });
     }
 }

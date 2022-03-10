@@ -24,3 +24,25 @@ It is an API developed with Laravel 8.x, according to [The Pet Shop Project](htt
 ## Usage
 
 Use the swagger UI to interact with the API.
+
+
+## Technical
+
+Notes about technical quirks and design decisions.
+
+
+### Data Transfer Objects
+
+Data transfer objects are simple objects to carry data.
+They allow better IDE support for moving data, as well as parameter type checking.
+
+- All DTOs extend `BaseDto`.
+- By default, DTOs will try to populate its properties from the `request`.
+- Preferred way of usage is returning DTOs from `requests` (Classes extending `FormRequest`) with a `getDto()` method.
+
+### JWT Auth
+
+- To save time, no refresh token system was implemented. It would exist in a production project.
+- For the same reasons, no `refreshing` existing token entities was implemented. New tokens are created and old ones are invalidated instead.
+- Private and public keys which added to the git repository are there for testing purposes. They meant to speed up the deploying and testing the app.
+- For we have a really simple authorization rules, consisting only of a `is_admin` check, `restrictions` and `permissions` fields are not present on `jwt_tokens` table. There is `is_admin` field instead.

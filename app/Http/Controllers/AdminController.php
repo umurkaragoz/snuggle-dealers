@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTransferObjects\LoginDto;
 use App\Http\Requests\LoginRequest;
 use App\OpenApi\RequestBodies\LoginRequestBody;
 use App\OpenApi\Responses\InternalServerErrorResponse;
-use App\OpenApi\Responses\NotFoundResponse;
 use App\OpenApi\Responses\OkResponse;
 use App\OpenApi\Responses\PageNotFoundResponse;
 use App\OpenApi\Responses\UnprocessableEntityResponse;
 use App\Repositories\AuthRepository;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Vyuldashev\LaravelOpenApi\Attributes as OpenApi;
 
+
+// --------------------------------------------------------------------------------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------------------------------------ Admin Controller --|
+// --------------------------------------------------------------------------------------------------------------------------------------------------|
 #[OpenApi\PathItem]
 class AdminController extends Controller
 {
@@ -30,7 +33,6 @@ class AdminController extends Controller
      * Login using existing user credentials.
      *
      * @param LoginRequest $request
-     * @param LoginDto     $loginDto
      *
      * @return JsonResponse
      */
@@ -40,11 +42,18 @@ class AdminController extends Controller
     #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
     #[OpenApi\Response(factory: UnprocessableEntityResponse::class, statusCode: 422)]
     #[OpenApi\Response(factory: InternalServerErrorResponse::class, statusCode: 500)]
-    public function login(LoginRequest $request, LoginDto $loginDto)
+    public function login(LoginRequest $request): JsonResponse
     {
-        $this->authRepo->login($loginDto);
+        $token = $this->authRepo->login($request->getDto());
         
-        return response()->json($loginDto);
+        return response()->json(['token' => $token]);
     }
     
+    /* --------------------------------------------------------------------------------------------------------------------------------- logout -+- */
+    public function logout(): JsonResponse
+    {
+        $this->authRepo->invalidateTokensFor(Auth::user());
+        
+        return response()->json(['success' => true]);
+    }
 }
