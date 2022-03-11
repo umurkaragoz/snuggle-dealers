@@ -31,6 +31,8 @@ class BaseDto
         $requestData = request()->toArray();
         
         foreach ($properties as $property) {
+            if (!Arr::has($requestData, $property)) continue;
+            
             // Populate the DTO properties.
             $this->{$property} = Arr::get($requestData, $property);
         }

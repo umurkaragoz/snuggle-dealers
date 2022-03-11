@@ -17,18 +17,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::pattern('uuid',  '[a-zA-Z0-9\-]+');
 
-Route::post('/admin/login', [AdminController::class, 'login']);
+Route::post('/admin/login',     [AdminController::class, 'login']);
+Route::post('/admin/create',    [AdminController::class, 'create']);
 
 Route::middleware('auth')->group(function() {
     
     Route::prefix('admin')->group(function() {
         
-        Route::get('/create',   [AdminController::class, 'create']);
         Route::get('/logout',   [AdminController::class, 'logout']);
         
         Route::get('/user-listing',         [AdminController::class, 'userListing']);
-        Route::get('/user-edit/{uuid}',     [AdminController::class, 'userEdit']);
-        Route::get('/user-delete/{uuid}',   [AdminController::class, 'userDelete']);
+        // Route::get('/user-edit/{uuid}',     [AdminController::class, 'userEdit']);
+        Route::delete('/user-delete/{uuid}',   [AdminController::class, 'userDelete']);
     
     });
     

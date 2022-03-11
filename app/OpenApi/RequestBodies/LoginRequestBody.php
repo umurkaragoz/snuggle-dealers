@@ -11,15 +11,16 @@ class LoginRequestBody extends RequestBodyFactory
 {
     public function build(): RequestBody
     {
+        $userObject = Schema::object('User')
+            ->properties(
+                Schema::string('email')->description('Admin email')->default('admin@buckhill.co.uk'),
+                Schema::string('password')->description('Admin password')->default('admin'),
+            )
+            ->required('email', 'password');
+        
         return RequestBody::create('Login')
             ->content(
-                MediaType::formUrlEncoded()->schema(
-                    Schema::object('User')
-                        ->properties(
-                            Schema::string('email')->description('Admin Email')->default('admin@buckhill.co.uk'),
-                            Schema::string('password')->description('Admin Password')->default('admin'),
-                        )
-                        ->required('email', 'password'))
+                MediaType::formUrlEncoded()->schema($userObject)
             )
             ->required();
     }

@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Support\GeneratesUuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -13,7 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, GeneratesUuid, SoftDeletes;
     
     /**
      * The attributes that are mass assignable.
@@ -52,5 +55,11 @@ class User extends Authenticatable
     public function jwtTokens(): HasMany|JwtToken
     {
         return $this->hasMany(JwtToken::class);
+    }
+    
+    /* --------------------------------------------------------------------------------------------------------------------------------- SCOPES -+- */
+    public function scopeWhereNotAdmin(Builder $query): Builder
+    {
+        return $query->where('is_admin', 0);
     }
 }

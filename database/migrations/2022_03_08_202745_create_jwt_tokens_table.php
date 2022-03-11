@@ -19,7 +19,7 @@ class CreateJwtTokensTable extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
-            $table->string('uuid');
+            $table->string('uuid', 36);
             $table->string('token_title')->nullable();
             
             $table->boolean('is_admin')->default(0);

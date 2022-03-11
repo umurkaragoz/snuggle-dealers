@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\DataTransferObjects\LoginDto;
+use App\DataTransferObjects\UserCreateDto;
 use App\Models\JwtToken;
 use App\Models\User;
 use Cache;
@@ -37,8 +38,15 @@ class AuthRepository
             throw new UnauthorizedException('Invalid credentials.', 401);
         }
         
-        $user = Auth::user();
+        Auth::user()->update(['last_login_at' => now()]);
         
+        return $this->generateJwtToken(Auth::user());
+    }
+    
+    
+    /* --------------------------------------------------------------------------------------------------------------------- generate Jwt Token -+- */
+    public function generateJwtToken(User $user): string
+    {
         // Invalidate previous any tokens for this user.
         $this->invalidateTokensFor($user);
         
@@ -54,6 +62,7 @@ class AuthRepository
         // Sign and return the token.
         return JWT::encode($this->createTokenPayload($token), config('jwt.private_key'), 'RS256');
     }
+    
     
     /* ------------------------------------------------------------------------------------------------------------------------- validate Token -+- */
     /**
@@ -88,6 +97,7 @@ class AuthRepository
         return $jwtToken;
     }
     
+    
     /* ------------------------------------------------------------------------------------------------------------------ invalidate Tokens For -+- */
     /**
      * Invalidate *all* tokens created for given user.
@@ -114,6 +124,29 @@ class AuthRepository
         });
     }
     
+    
+    /* ------------------------------------------------------------------------------------------------------------------------------- register -+- */
+    public function register(UserCreateDto $dto): string
+    {
+        $user = new User();
+        
+        $user->email = $dto->email;
+        $user->first_name = $dto->first_name;
+        $user->last_name = $dto->last_name;
+        $user->address = $dto->address;
+        $user->avatar = $dto->avatar;
+        $user->phone_number = $dto->phone_number;
+        $user->is_marketing = $dto->is_marketing;
+        $user->is_admin = $dto->is_admin;
+        
+        $user->password = bcrypt($dto->password);
+        
+        $user->save();
+        
+        return $this->generateJwtToken($user);
+    }
+    
+    
     /* ------------------------------------------------------------------------------------------------------------------- create Token Payload -+- */
     /**
      * Creates a new JWT token payload/claim using a JwtToken entity.
@@ -133,8 +166,8 @@ class AuthRepository
             "iat" => $token->created_at->timestamp,
             // Expiry
             "exp" => $token->expires_at->timestamp,
-            // User ID
-            "uid" => $token->user_id,
+            // User UUID
+            "uid" => $token->user->uuid,
             // Is admin
             "adm" => $token->is_admin,
         ];

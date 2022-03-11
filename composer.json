@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
+        "dyrynda/laravel-model-uuid": "^6.6",
         "firebase/php-jwt": "^6.0",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -52,7 +53,10 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "migrate": "@php artisan migrate:fresh --seed",
+        "db:fresh": [
+            "@php artisan migrate:fresh --seed",
+            "@generate-ide-helpers"
+        ],
         "generate-ide-helpers": [
             "@php artisan ide-helper:generate -WHn",
             "@php artisan ide-helper:meta -n",
@@ -64,7 +68,9 @@
         ]
     },
     "scripts-descriptions": {
-        "migrate": "Truncate, migrate and seed the database."
+        "db:fresh": "Truncates, migrates and seeds the database.",
+        "generate-ide-helpers": "Generates IDE helper files.",
+        "setup": "Used for initial setup on a server."
     },
     "extra": {
         "laravel": {

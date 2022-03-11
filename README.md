@@ -9,7 +9,9 @@ Snuggle Dealers is a sample app for [Buckhill](https://www.buckhill.co.uk/).
 It is an API developed with Laravel 8.x, according to [The Pet Shop Project](https://pet-shop.buckhill.com.hr/api/swagger) specifications.
 
 
+
 ## Installation & Configuration
+
 
 ### Docker
 
@@ -21,9 +23,26 @@ It is an API developed with Laravel 8.x, according to [The Pet Shop Project](htt
   - `docker-compose exec web php artisan key:generate`
 
 
+
 ## Usage
 
-Use the swagger UI to interact with the API.
+
+### Swagger
+
+- Use the swagger UI to interact with the API.
+- Swagger definition is provided in `.json` format, on `/openapi` endpoint. It can be imported to and inspected with any [Swagger UI online](https://petstore.swagger.io/).
+
+
+### Scripts
+
+Utility scripts for the project setup and development.
+
+ Script                           | Description
+                              --- | ---
+ `composer db:fresh`              | Seeds and migrates the database.
+ `composer generate-ide-helpers`  | Truncates, migrates and seeds the database.
+ `composer setup`                 | Used for initial setup on a server.
+
 
 
 ## Technical
@@ -39,6 +58,7 @@ They allow better IDE support for moving data, as well as parameter type checkin
 - All DTOs extend `BaseDto`.
 - By default, DTOs will try to populate its properties from the `request`.
 - Preferred way of usage is returning DTOs from `requests` (Classes extending `FormRequest`) with a `getDto()` method.
+
 
 ### JWT Auth
 

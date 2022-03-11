@@ -29,7 +29,7 @@ return [
             ],
             
             'security'    => [
-                // GoldSpecDigital\ObjectOrientedOAS\Objects\SecurityRequirement::create()->securityScheme('JWT'),
+                // GoldSpecDigital\ObjectOrientedOAS\Objects\SecurityRequirement::create()->securityScheme('BearerToken'),
             ],
             
             // Route for exposing specification.
