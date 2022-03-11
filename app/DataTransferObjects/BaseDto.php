@@ -3,6 +3,7 @@
 namespace App\DataTransferObjects;
 
 use Illuminate\Support\Arr;
+use LogicException;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -66,10 +67,25 @@ class BaseDto
         // Get a list of properties of this DTO object.
         $properties = $this->getProperties();
         
-        // Make an array with symmetric keys and values.
-        $properties = array_combine($properties, $properties);
+        $array = [];
         
-        // Change array values with DTO's values.
-        return array_map(fn($property) => $this->{$property}, $properties);
+        foreach ($properties as $property) {
+            if (!isset($this->{$property})) {
+                continue;
+            }
+            
+            // Populate the DTO properties.
+            $array[$property] = $this->{$property};
+        }
+        
+        return $array;
+    }
+    
+    /* ------------------------------------------------------------------------------------------------------------------------------------ set -+- */
+    public function __set(string $name, $value): void
+    {
+        $class = get_class($this);
+        // Protect DTO objects from undeclared property assignment.
+        throw new LogicException("Cannot set undeclared properties on DTOs. Tried to set nonexistent property '$name' on '$class'.");
     }
 }

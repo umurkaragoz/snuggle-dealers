@@ -2,7 +2,7 @@
 
 namespace App\DataTransferObjects;
 
-class UserCreateDto extends BaseDto
+final class UserCreateDto extends BaseDto
 {
     protected bool $autoFillFromRequest = true;
     
@@ -14,5 +14,5 @@ class UserCreateDto extends BaseDto
     public string $avatar;
     public string $phone_number;
     public bool $is_marketing;
-    public bool $is_admin = false;
+    public bool $is_admin;
 }

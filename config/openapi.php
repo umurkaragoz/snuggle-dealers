@@ -23,8 +23,12 @@ return [
             
             'tags' => [
                 [
-                    'name'        => 'admin',
-                    'description' => 'Admin endpoints',
+                    'name'        => 'Admin',
+                    'description' => 'Admin API endpoints',
+                ],
+                [
+                    'name'        => 'User',
+                    'description' => 'User API endpoints',
                 ],
             ],
             

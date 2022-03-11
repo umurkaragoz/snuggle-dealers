@@ -16,7 +16,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // "Database gets truncated and re-seeded every day at midnight UTC."
+        $schedule->command('migrate:fresh  --seed')->daily()->timezone('UTC');
     }
     
     /**

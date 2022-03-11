@@ -34,7 +34,7 @@ class Authenticate extends Middleware
         $token = $this->authRepo->validateToken($tokenString);
         
         // Log in the verified user for this request only.
-        Auth::setUser((new User())->forceFill(['id' => $token->user_id, 'is_admin' => $token->is_admin]));
+        Auth::setUser((new User())->forceFill(['uuid' => $token['user_uuid'], 'is_admin' => $token['is_admin']]));
         
         return $next($request);
     }

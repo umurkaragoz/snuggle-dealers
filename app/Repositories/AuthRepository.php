@@ -21,6 +21,14 @@ use JetBrains\PhpStorm\ArrayShape;
 // --------------------------------------------------------------------------------------------------------------------------------------------------|
 class AuthRepository
 {
+    private UserRepository $userRepo;
+    
+    /* ------------------------------------------------------------------------------------------------------------------------------ construct -+- */
+    public function __construct(UserRepository $userRepo)
+    {
+        $this->userRepo = $userRepo;
+    }
+    
     /* ---------------------------------------------------------------------------------------------------------------------------------- login -+- */
     /**
      * Authenticates user using `email` and `password`, issues and returns a new JWT token.
@@ -55,7 +63,7 @@ class AuthRepository
         $token->expires_at = now()->addSeconds(config('jwt.ttl'));
         $token->uuid = Str::uuid();
         $token->token_title = 'auth';
-        $token->is_admin = 1;
+        $token->is_admin = $user->is_admin;
         
         $user->jwtTokens()->save($token);
         
@@ -70,9 +78,10 @@ class AuthRepository
      *
      * @param string $token
      *
-     * @return JwtToken
+     * @return array
      */
-    public function validateToken(string $token): JwtToken
+    #[ArrayShape(['token_uuid' => "string", 'user_uuid' => "string", 'is_admin' => "bool"])]
+    public function validateToken(string $token): array
     {
         try {
             $decodedToken = JWT::decode($token, new Key(config('jwt.public_key'), 'RS256'));
@@ -90,11 +99,11 @@ class AuthRepository
             throw new UnauthorizedException('Token is invalidated.', 401);
         }
         
-        $jwtToken = new JwtToken();
-        $jwtToken->user_id = $decodedToken->uid;
-        $jwtToken->is_admin = $decodedToken->adm;
-        
-        return $jwtToken;
+        return [
+            'token_uuid' => $decodedToken->jti,
+            'user_uuid'  => $decodedToken->uid,
+            'is_admin'   => $decodedToken->adm,
+        ];
     }
     
     
@@ -128,20 +137,7 @@ class AuthRepository
     /* ------------------------------------------------------------------------------------------------------------------------------- register -+- */
     public function register(UserCreateDto $dto): string
     {
-        $user = new User();
-        
-        $user->email = $dto->email;
-        $user->first_name = $dto->first_name;
-        $user->last_name = $dto->last_name;
-        $user->address = $dto->address;
-        $user->avatar = $dto->avatar;
-        $user->phone_number = $dto->phone_number;
-        $user->is_marketing = $dto->is_marketing;
-        $user->is_admin = $dto->is_admin;
-        
-        $user->password = bcrypt($dto->password);
-        
-        $user->save();
+        $user = $this->userRepo->create($dto);
         
         return $this->generateJwtToken($user);
     }

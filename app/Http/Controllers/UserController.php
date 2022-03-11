@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTransferObjects\UserCreateDto;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UserEditRequest;
 use App\OpenApi\RequestBodies\LoginRequestBody;
@@ -21,10 +20,10 @@ use Vyuldashev\LaravelOpenApi\Attributes as OpenApi;
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------|
-// ------------------------------------------------------------------------------------------------------------------------------ Admin Controller --|
+// ------------------------------------------------------------------------------------------------------------------------------- User Controller --|
 // --------------------------------------------------------------------------------------------------------------------------------------------------|
 #[OpenApi\PathItem]
-class AdminController extends Controller
+class UserController extends Controller
 {
     private AuthRepository $authRepo;
     private UserRepository $userRepo;
@@ -38,6 +37,24 @@ class AdminController extends Controller
     }
     
     
+    /* ----------------------------------------------------------------------------------------------------------------------------------- show -+- */
+    /**
+     * Show user details.
+     *
+     * @return JsonResponse
+     */
+    #[OpenApi\Operation(tags: ['User'], security: GlobalSecurityScheme::class, method: 'GET')]
+    #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
+    #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
+    #[OpenApi\Response(factory: UnprocessableEntityResponse::class, statusCode: 422)]
+    #[OpenApi\Response(factory: InternalServerErrorResponse::class, statusCode: 500)]
+    public function show(): JsonResponse
+    {
+        $user = $this->userRepo->getDetails(Auth::user()->uuid);
+        
+        return response()->json($user->toArray());
+    }
+    
     /* ---------------------------------------------------------------------------------------------------------------------------------- login -+- */
     /**
      * Login using existing user credentials.
@@ -46,7 +63,7 @@ class AdminController extends Controller
      *
      * @return JsonResponse
      */
-    #[OpenApi\Operation(tags: ['Admin'], method: 'POST')]
+    #[OpenApi\Operation(tags: ['User'], method: 'POST')]
     #[OpenApi\RequestBody(factory: LoginRequestBody::class)]
     #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
     #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
@@ -62,11 +79,11 @@ class AdminController extends Controller
     
     /* --------------------------------------------------------------------------------------------------------------------------------- logout -+- */
     /**
-     * Logout an admin account.
+     * Logout a user account.
      *
      * @return JsonResponse
      */
-    #[OpenApi\Operation(tags: ['Admin'], security: GlobalSecurityScheme::class, method: 'GET')]
+    #[OpenApi\Operation(tags: ['User'], security: GlobalSecurityScheme::class, method: 'GET')]
     #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
     #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
     #[OpenApi\Response(factory: UnprocessableEntityResponse::class, statusCode: 422)]
@@ -81,13 +98,13 @@ class AdminController extends Controller
     
     /* --------------------------------------------------------------------------------------------------------------------------------- create -+- */
     /**
-     * Create a new admin user.
+     * Create a new user account.
      *
      * @param UserEditRequest $request
      *
      * @return JsonResponse
      */
-    #[OpenApi\Operation(tags: ['Admin'], security: GlobalSecurityScheme::class, method: 'POST')]
+    #[OpenApi\Operation(tags: ['User'], security: GlobalSecurityScheme::class, method: 'POST')]
     #[OpenApi\RequestBody(factory: UserCreateRequestBody::class)]
     #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
     #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
@@ -96,7 +113,7 @@ class AdminController extends Controller
     public function create(UserEditRequest $request): JsonResponse
     {
         $dto = $request->getDto();
-        $dto->is_admin = 1;
+        $dto->is_admin = 0;
         
         $token = $this->authRepo->register($dto);
         
@@ -104,64 +121,48 @@ class AdminController extends Controller
     }
     
     
-    /* --------------------------------------------------------------------------------------------------------------------------- user Listing -+- */
+    /* ----------------------------------------------------------------------------------------------------------------------------------- edit -+- */
     /**
-     * List user accounts.
-     *
-     * @return JsonResponse
-     */
-    #[OpenApi\Operation(tags: ['Admin'], security: GlobalSecurityScheme::class, method: 'GET')]
-    #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
-    #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
-    #[OpenApi\Response(factory: UnprocessableEntityResponse::class, statusCode: 422)]
-    #[OpenApi\Response(factory: InternalServerErrorResponse::class, statusCode: 500)]
-    public function userListing(): JsonResponse
-    {
-        return response()->json($this->userRepo->userList());
-    }
-    
-    
-    /* ------------------------------------------------------------------------------------------------------------------------------ user Edit -+- */
-    /**
-     * Edit a user entity.
+     * Edit logged in user.
      *
      * @param UserEditRequest $request
-     * @param string          $uuid
      *
      * @return JsonResponse
      */
-    #[OpenApi\Operation(tags: ['Admin'], security: GlobalSecurityScheme::class, method: 'PUT')]
+    #[OpenApi\Operation(tags: ['User'], security: GlobalSecurityScheme::class, method: 'PUT')]
     #[OpenApi\RequestBody(factory: UserEditRequestBody::class)]
     #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
     #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
     #[OpenApi\Response(factory: UnprocessableEntityResponse::class, statusCode: 422)]
     #[OpenApi\Response(factory: InternalServerErrorResponse::class, statusCode: 500)]
-    public function userEdit(UserEditRequest $request, string $uuid): JsonResponse
+    public function edit(UserEditRequest $request): JsonResponse
     {
-        $this->userRepo->update($uuid, $request->getDto());
+        $this->userRepo->update(Auth::user()->uuid, $request->getDto());
         
-        return response()->json(['success' => true]);
+        $user = $this->userRepo->getDetails(Auth::user()->uuid);
+        
+        return response()->json([
+            'success' => true,
+            'user'    => $user->toArray(),
+        ]);
     }
     
     
-    /* ---------------------------------------------------------------------------------------------------------------------------- user Delete -+- */
+    /* --------------------------------------------------------------------------------------------------------------------------------- delete -+- */
     /**
-     * Delete a user.
-     *
-     * @param string $uuid
+     * Delete logged in user.
      *
      * @return JsonResponse
      */
-    #[OpenApi\Operation(tags: ['Admin'], security: GlobalSecurityScheme::class, method: 'DELETE')]
+    #[OpenApi\Operation(tags: ['User'], security: GlobalSecurityScheme::class, method: 'DELETE')]
     #[OpenApi\Response(factory: OkResponse::class, statusCode: 200)]
     #[OpenApi\Response(factory: PageNotFoundResponse::class, statusCode: 404)]
     #[OpenApi\Response(factory: UnprocessableEntityResponse::class, statusCode: 422)]
     #[OpenApi\Response(factory: InternalServerErrorResponse::class, statusCode: 500)]
-    public function userDelete(string $uuid): JsonResponse
+    public function delete(): JsonResponse
     {
-        $this->userRepo->delete($uuid);
+        $this->userRepo->delete(Auth::user());
         
         return response()->json(['success' => true]);
     }
-    
 }

@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
+use App\DataTransferObjects\UserCreateDto;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -12,6 +12,56 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 // --------------------------------------------------------------------------------------------------------------------------------------------------|
 class UserRepository
 {
+    
+    /* ---------------------------------------------------------------------------------------------------------------------------- get Details -+- */
+    /**
+     * Get user details.
+     *
+     * @param string $uuid
+     *
+     * @return User
+     */
+    public function getDetails(string $uuid) : User
+    {
+        /** @var User $user  */
+        $user = User::whereUuid($uuid)->firstOrFail();
+        
+        return $user;
+    }
+    
+    /* --------------------------------------------------------------------------------------------------------------------------------- create -+- */
+    public function create(UserCreateDto $dto): User
+    {
+        return $this->save(new User(), $dto);
+    }
+    
+    
+    /* --------------------------------------------------------------------------------------------------------------------------------- update -+- */
+    public function update(User|string $user, UserCreateDto $dto): User
+    {
+        if (is_string($user)) {
+            $user = User::whereNotAdmin()->whereUuid($user)->firstOrFail();
+        }
+        
+        return $this->save($user, $dto);
+    }
+    
+    
+    /* ----------------------------------------------------------------------------------------------------------------------------------- save -+- */
+    public function save(User $user, UserCreateDto $dto): User
+    {
+        $user->forceFill($dto->toArray());
+        
+        if (isset($dto->password)) {
+            $user->password = bcrypt($dto->password);
+        }
+        
+        $user->save();
+        
+        return $user;
+    }
+    
+    
     /* ------------------------------------------------------------------------------------------------------------------------------ user List -+- */
     /**
      * List all users.
@@ -23,14 +73,15 @@ class UserRepository
         return User::whereNotAdmin()->get();
     }
     
+    
     /* ---------------------------------------------------------------------------------------------------------------------------- user Delete -+- */
-    public function userDelete(string $uuid)
+    public function delete(User|string $user)
     {
-        $result = User::whereNotAdmin()->where('uuid', $uuid)->delete();
-        
-        if (!$result) {
-            throw new ConflictHttpException('User does not exist!', null, 409);
+        if (is_string($user)) {
+            $user = User::whereNotAdmin()->whereUuid($user)->firstOrFail();
         }
+        
+        $user->delete();
     }
     
 }

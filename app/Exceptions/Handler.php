@@ -44,14 +44,21 @@ class Handler extends ExceptionHandler
                 $httpStatusCode = $e->getCode();
             }
             
-            // Return a JSON response.
-            return response()->json([
-                'message' => $e->getMessage(),
-                'data'    => [
-                    'type'  => get_class($e),
-                    'trace' => $e->getTrace(),
-                ],
-            ], $httpStatusCode);
+            if (config('app.env') === 'production') {
+                // Return a JSON response. Show only a simple message on production environment.
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], $httpStatusCode);
+            } else {
+                // Print error details outside of the production environment.
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'data'    => [
+                        'type'  => get_class($e),
+                        'trace' => $e->getTrace(),
+                    ],
+                ], $httpStatusCode);
+            }
         });
     }
 }
