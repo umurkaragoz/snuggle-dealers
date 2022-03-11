@@ -36,8 +36,7 @@ class Handler extends ExceptionHandler
     public function register()
     {
         // We are building an API, therefore we want all exceptions rendered in JSON format.
-        $this->renderable(function(Throwable $e) {
-            
+        $this->renderable(function (Throwable $e) {
             $httpStatusCode = 400;
             
             // If we are processing an Http exception, we can try to extract a more useful status code than mere `400`.

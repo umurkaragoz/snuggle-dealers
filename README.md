@@ -37,11 +37,11 @@ It is an API developed with Laravel 8.x, according to [The Pet Shop Project](htt
 
 Utility scripts for the project setup and development.
 
- Script                           | Description
-                              --- | ---
- `composer db:fresh`              | Seeds and migrates the database.
- `composer generate-ide-helpers`  | Truncates, migrates and seeds the database.
- `composer setup`                 | Used for initial setup on a server.
+ | Script                            | Description       
+ |                               --- | ---
+ | `composer db:fresh`               | Seeds and migrates the database.      
+ | `composer generate-ide-helpers`   | Truncates, migrates and seeds the database.      
+ | `composer setup`                  | Used for initial setup on a server.
 
 
 

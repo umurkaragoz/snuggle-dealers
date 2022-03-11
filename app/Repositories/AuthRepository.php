@@ -119,7 +119,7 @@ class AuthRepository
      */
     public function getInvalidatedTokens(): array
     {
-        return Cache::rememberForever('invalidated-tokens', function() {
+        return Cache::rememberForever('invalidated-tokens', function () {
             return JwtToken::whereFresh()->whereNotNull('invalidated_at')->pluck('uuid')->toArray();
         });
     }
@@ -155,7 +155,15 @@ class AuthRepository
      *
      * @return array
      */
-    #[ArrayShape(["iss" => "string", "aud" => "string", "jti" => "string", "iat" => "float|int|string", "exp" => "float|int|string", "uid" => "", "adm" => "mixed"])]
+    #[ArrayShape([
+        "iss" => "string",
+        "aud" => "string",
+        "jti" => "string",
+        "iat" => "float|int|string",
+        "exp" => "float|int|string",
+        "uid" => "",
+        "adm" => "mixed",
+    ])]
     private function createTokenPayload(JwtToken $token): array
     {
         return [
